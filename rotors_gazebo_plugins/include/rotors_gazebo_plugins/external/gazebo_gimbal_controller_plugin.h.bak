@@ -101,9 +101,9 @@ namespace gazebo
     private: common::PID yawPid;
     private: common::Time lastUpdateTime;
 
-    private: math::Vector3 ThreeAxisRot(
+    private: ignition::math::Vector3d ThreeAxisRot(
       double r11, double r12, double r21, double r31, double r32);
-    private: math::Vector3 QtoZXY(
+    private: ignition::math::Vector3d QtoZXY(
       const math::Quaternion &_q);
   };
 }
