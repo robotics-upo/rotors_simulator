@@ -32,7 +32,7 @@
         <linkName>${namespace}/base_link</linkName>
         <frameId>${namespace}/base_link</frameId>
         <rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>
-	<waitToRecordBag>${wait_to_record_bag}</waitToRecordBag>
+	      <waitToRecordBag>${wait_to_record_bag}</waitToRecordBag>
       </plugin>
     </gazebo>
   </xacro:macro>
@@ -333,7 +333,7 @@
       </ray>
     
       <plugin name="${namespace}gazebo_ros_laser_controller" filename="libgazebo_ros_velodyne_laser.so">
-<!--           <topicName>${namespace}/os1_cloud_node/points</topicName> -->
+          <!--<topicName>${namespace}/os1_cloud_node/points</topicName> -->
           <topicName>os1_cloud_node/points</topicName>
           <frameName>os1_sensor</frameName>
           <min_range>0.8</min_range>
@@ -515,12 +515,12 @@
     <gazebo>
       <plugin name="mavlink_interface" filename="librotors_gazebo_mavlink_interface.so">
         <robotNamespace>${namespace}</robotNamespace>
-	<mavlinkControlSubTopic>${mavlink_sub_topic}</mavlinkControlSubTopic>
+	      <mavlinkControlSubTopic>${mavlink_sub_topic}</mavlinkControlSubTopic>
         <imuSubTopic>${imu_sub_topic}</imuSubTopic>
         <mavlinkHilSensorPubTopic>${mavlink_pub_topic}</mavlinkHilSensorPubTopic>
-	<motorSpeedsPubTopic>${motors_speeds_pub_topic}</motorSpeedsPubTopic>
-	<gpsUpdateFreq>${gps_update_freq}</gpsUpdateFreq> <!-- Frequency of HIL GPS messages [Hz] -->
-	<rotorCount>${rotor_count}</rotorCount>
+	      <motorSpeedsPubTopic>${motors_speeds_pub_topic}</motorSpeedsPubTopic>
+	      <gpsUpdateFreq>${gps_update_freq}</gpsUpdateFreq> <!-- Frequency of HIL GPS messages [Hz] -->
+	      <rotorCount>${rotor_count}</rotorCount>
         <!-- [Gauss] Below are the North, East, and Down components of the Earth's magnetic field at the reference location.
              The default reference location is Zurich (lat=+47.3667degN, lon=+8.5500degE, h=+500m, WGS84).
 	     You can obtain the magnetic field strength for your location using the World Magnetic Model: 
