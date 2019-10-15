@@ -83,9 +83,16 @@
     parent_link="${namespace}/base_link" >
   </xacro:ouster_lidar> 
 
+  <!-- <xacro:gps_fix_macro
+    namespace="${namespace}"
+    parent_link="${namespace}/base_link"
+    gps_suffix="fix">
+  </xacro:gps_fix_macro>   -->
+
+  
   <xacro:default_gps
     namespace="${namespace}"
-    parent_link="${namespace}/base_link" >
+    parent_link="${namespace}/base_link">
   </xacro:default_gps>  
   
  <!--  <xacro:hokuyo_lidar

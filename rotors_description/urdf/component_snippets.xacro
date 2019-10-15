@@ -232,8 +232,8 @@
         
         <plugin name="${namespace}_thermal_camera_${camera_suffix}_controller" filename="libgazebo_ros_thermal_camera.so">
           <robotNamespace>${namespace}</robotNamespace>
-          <cameraName>thermal_camera_${camera_suffix}</cameraName>
-          <frameName>thermal_camera_${camera_suffix}_link</frameName>
+          <cameraName>thermal_camera</cameraName>  <!--USING FOR DOMI: thermal_camera_${camera_suffix} -->
+          <frameName>thermal_camera_link</frameName> <!--USING FOR DOMI: thermal_camera_${camera_suffix}_link -->
           <alwaysOn>true</alwaysOn>
           <updateRate>10</updateRate>
           <!--<imageTopicName>${namespace}/thermal_camera/image_raw</imageTopicName>
@@ -246,25 +246,65 @@
     </gazebo>
   </xacro:macro>
   
+
+  <!-- Macro to add a GPS fix -->
+  <xacro:macro name="gps_fix_macro" params="namespace parent_link gps_suffix">
+    <link name="${namespace}/gps_fix_${gps_suffix}_link"> 
+      <!-- <collision>
+        <origin xyz="0.10 0 0.425554" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.01" length="0.006"/>
+        </geometry>
+      </collision>      -->
+      <inertial>
+        <mass value="0.01" />
+        <!-- <origin xyz="0 0 0" rpy="0 0 0" /> -->
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+    </link>
+    <joint name="${namespace}/gps_fix_${gps_suffix}_joint" type="fixed">
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <!-- <axis xyz="1 0 0" /> -->
+      <parent link="${parent_link}" />
+      <child link="${namespace}/gps_fix_${gps_suffix}_link" />
+    </joint>
+    <gazebo reference="${namespace}/gps_fix_${gps_suffix}_link">
+      <sensor type="gps" name="gps_fix_${gps_suffix}">
+        <plugin name="${namespace}_gps_fix_dron_${gps_suffix}" filename="libgazebo_ros_gps.so">
+              <alwaysOn>true</alwaysOn>
+              <updateRate>5.0</updateRate>
+              <!-- <bodyName>base_link</bodyName> -->
+              <topicName>${namespace}/gps{gps_suffix}</topicName>
+              <frameId>${namespace}/base_link{gps_suffix}</frameId>
+              <robotBaseFrame>${namespace}/base_link{gps_suffix}</robotBaseFrame>
+              <velocityTopicName>${namespace}/gps_velocity{gps_suffix}</velocityTopicName>
+              <drift>5.0 5.0 5.0</drift>
+              <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+              <velocityDrift>0 0 0</velocityDrift>
+              <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+          </plugin>
+        </sensor>
+    </gazebo>
+  </xacro:macro>
+
+
   <!-- Macro to add ouster lidar -->
 <xacro:macro name="ouster_lidar" params="namespace parent_link">
-    <link name="${namespace}/ouster_link">
+    <link name="${namespace}/os1_sensor">
       <inertial>
          <!--<mass value="0.1" />
          <inertia ixx="0.000090623" ixy="0.0" ixz="0.0" iyy="0.000090623" iyz="0.0" izz="0.000091036" /> -->
          <mass value="0.01" />
          <inertia ixx="1e-6" ixy="0.0" ixz="0.0" iyy="1e-6" iyz="0.0" izz="1e-6" /> 
       </inertial>
-      
       <!--<collision>
         <origin xyz="-0.15 0 0.6462" rpy="0 0 0"/>
         <geometry>
           <cylinder radius="0.04267" length="0.07357"/>
         </geometry>
       </collision>-->
-     </link>
-     
-      <link name="${namespace}/velodyne_base">
+    </link>
+    <link name="${namespace}/velodyne_base">
       <inertial>
          <!--<mass value="1.2" />
          <inertia ixx="0.001087473" ixy="0.0" ixz="0.0" iyy="0.001087473" iyz="0.0" izz="0.001092437" /> -->
@@ -277,14 +317,11 @@
           <cylinder radius="0.04267" length="0.05867"/>
         </geometry>
       </collision>-->
-     </link>
-     
-   
-    
+    </link>
     <joint type="fixed" name="joint">
       <origin xyz="0 0 -0.036785" rpy="0 0 0" />
       <parent link="${namespace}/velodyne_base" />
-      <child link="${namespace}/ouster_link" />
+      <child link="${namespace}/os1_sensor" />
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -293,15 +330,13 @@
         </limit>
       </axis>
     </joint>
-    
     <joint type="fixed" name="fixed_velodyne">
       <origin xyz="0 0 0" rpy="0 0 0" />
       <parent link="${parent_link}" />
       <child link="${namespace}/velodyne_base" />
     </joint>
-
-    <gazebo reference="${namespace}/ouster_link">
-     <sensor type="ray" name="lase_scanr">
+    <gazebo reference="${namespace}/os1_sensor">
+     <sensor type="ray" name="laser_scan">
       <pose>0 0 -0.004645 0 0 0</pose>
       <visualize>false</visualize>
       <update_rate>10</update_rate>
@@ -331,7 +366,6 @@
             <stddev>0.0</stddev>
         </noise>
       </ray>
-    
       <plugin name="${namespace}gazebo_ros_laser_controller" filename="libgazebo_ros_velodyne_laser.so">
           <!--<topicName>${namespace}/os1_cloud_node/points</topicName> -->
           <topicName>os1_cloud_node/points</topicName>
@@ -340,10 +374,8 @@
           <max_range>120.0</max_range>
           <gaussianNoise>0.008</gaussianNoise>  
       </plugin>
-      
      </sensor>
     </gazebo>
-    
   </xacro:macro>
   
   <!-- Camera joint macro - just the joints, links, and collisions for a single
@@ -528,7 +560,7 @@
         <referenceMagNorth>${reference_magnetic_field_north}</referenceMagNorth>
         <referenceMagEast>${reference_magnetic_field_east}</referenceMagEast>
         <referenceMagDown>${reference_magnetic_field_down}</referenceMagDown>
-	<referenceLatitude>${reference_latitude}</referenceLatitude> <!-- the initial latitude [degrees [-90, 90]] -->
+	      <referenceLatitude>${reference_latitude}</referenceLatitude> <!-- the initial latitude [degrees [-90, 90]] -->
         <referenceLongitude>${reference_longitude}</referenceLongitude> <!-- the initial longitude [degrees [-180, 180]] -->
         <referenceAltitude>${reference_altitude}</referenceAltitude> <!-- the initial altitude [m] -->
       </plugin>
@@ -698,7 +730,7 @@
         </gps>
         <plugin filename="librotors_gazebo_gps_plugin.so" name="rotors_gazebo_gps${gps_suffix}_plugin">
           <robotNamespace>${namespace}</robotNamespace> <!-- (string, required): ros namespace in which the messages are published -->
-          <linkName>${namespace}/gps${gps_suffix}_link</linkName> <!-- (string, required): name of the body which holds the GPS sensor -->
+          <linkName>${namespace}/base_link</linkName> <!-- (string, required): name of the body which holds the GPS sensor -->
           <gpsTopic>${gps_topic}</gpsTopic> <!-- (string): name of the sensor output topic and prefix of service names (defaults to 'gps') -->
           <groundSpeedTopic>${ground_speed_topic}</groundSpeedTopic> <!-- (string): name of the ground speed output topic (defaults to 'ground_speed') -->
           <horPosStdDev>${horizontal_pos_std_dev}</horPosStdDev> <!-- standard deviation for horizontal position noise [m] -->
@@ -1098,6 +1130,11 @@
     </xacro:magnetometer_plugin_macro>
   </xacro:macro>
 
+
+  <!-- DEFAULT VALUES OF REFERENCES -->
+  <!--reference_latitude="47.3667"
+      reference_longitude="8.5500"
+      reference_altitude="500.0" -->
   <xacro:macro name="default_mavlink_interface" params="namespace imu_sub_topic rotor_count">
     <xacro:mavlink_interface_macro
       namespace="${namespace}"
@@ -1110,9 +1147,9 @@
       reference_magnetic_field_north="0.21475"
       reference_magnetic_field_east="0.00797"
       reference_magnetic_field_down="0.42817"
-      reference_latitude="47.3667"
-      reference_longitude="8.5500"
-      reference_altitude="500.0">
+      reference_latitude="49.9"
+      reference_longitude="8.9"
+      reference_altitude="0.0">
     </xacro:mavlink_interface_macro>
   </xacro:macro>
 
