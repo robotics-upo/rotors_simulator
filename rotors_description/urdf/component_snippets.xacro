@@ -248,42 +248,35 @@
   
 
   <!-- Macro to add a GPS fix -->
-  <xacro:macro name="gps_fix_macro" params="namespace parent_link gps_suffix">
-    <link name="${namespace}/gps_fix_${gps_suffix}_link"> 
-      <!-- <collision>
-        <origin xyz="0.10 0 0.425554" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="0.01" length="0.006"/>
-        </geometry>
-      </collision>      -->
+  <xacro:macro name="gps_fix_macro" params="namespace parent_link">
+    <link name="${namespace}/gps_fix_link"> 
       <inertial>
         <mass value="0.01" />
-        <!-- <origin xyz="0 0 0" rpy="0 0 0" /> -->
         <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
       </inertial>
     </link>
-    <joint name="${namespace}/gps_fix_${gps_suffix}_joint" type="fixed">
-      <origin xyz="0 0 0.5" rpy="0 0 0"/>
-      <!-- <axis xyz="1 0 0" /> -->
+    <joint name="${namespace}/gps_fix_joint" type="fixed">
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
       <parent link="${parent_link}" />
-      <child link="${namespace}/gps_fix_${gps_suffix}_link" />
+      <child link="${namespace}/gps_fix_link" />
     </joint>
-    <gazebo reference="${namespace}/gps_fix_${gps_suffix}_link">
-      <sensor type="gps" name="gps_fix_${gps_suffix}">
-        <plugin name="${namespace}_gps_fix_dron_${gps_suffix}" filename="libgazebo_ros_gps.so">
-              <alwaysOn>true</alwaysOn>
+    <gazebo >
+              <plugin name="${namespace}_gps_fix_dron" filename="libplugin_gazebo_ros_gps.so">
               <updateRate>5.0</updateRate>
-              <!-- <bodyName>base_link</bodyName> -->
-              <topicName>${namespace}/gps{gps_suffix}</topicName>
-              <frameId>${namespace}/base_link{gps_suffix}</frameId>
-              <robotBaseFrame>${namespace}/base_link{gps_suffix}</robotBaseFrame>
-              <velocityTopicName>${namespace}/gps_velocity{gps_suffix}</velocityTopicName>
-              <drift>5.0 5.0 5.0</drift>
+              <bodyName>${namespace}/base_link</bodyName>
+              <alwaysOn>true</alwaysOn>
+              <robotBaseFrame>${namespace}/base_link</robotBaseFrame>
+              <!-- <frameId>${namespace}/base_link</frameId> -->
+              <topicName>gps</topicName>
+              <velocityTopicName>gps_velocity</velocityTopicName> 
               <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
               <velocityDrift>0 0 0</velocityDrift>
               <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+              <referenceLatitude>49.9</referenceLatitude>
+              <referenceLongitude>8.9</referenceLongitude>
+              <referenceHeading>0</referenceHeading>
+              <referenceAltitude>0</referenceAltitude>            
           </plugin>
-        </sensor>
     </gazebo>
   </xacro:macro>
 
