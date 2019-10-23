@@ -21,6 +21,7 @@
 
 <robot name="hummingbird" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find rotors_description)/urdf/component_snippets.xacro" />
+  <xacro:include filename="$(find rotors_description)/urdf/component_mbzirc.xacro" />
   <!-- Instantiate hummingbird "mechanics" -->
   <xacro:include filename="$(find rotors_description)/urdf/hummingbird.xacro" />
 
