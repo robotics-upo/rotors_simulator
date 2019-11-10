@@ -21,6 +21,7 @@
 
 <robot name="hummingbird" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find rotors_description)/urdf/component_snippets.xacro" />
+  <xacro:include filename="$(find rotors_description)/urdf/component_mbzirc.xacro" />
   <!-- Instantiate hummingbird "mechanics" -->
   <xacro:include filename="$(find rotors_description)/urdf/hummingbird.xacro" />
 
@@ -83,18 +84,16 @@
     parent_link="${namespace}/base_link" >
   </xacro:ouster_lidar> 
 
-  <!-- <xacro:gps_fix_macro
-    namespace="${namespace}"
-    parent_link="${namespace}/base_link"
-    gps_suffix="fix">
-  </xacro:gps_fix_macro>   -->
-
-  
-  <xacro:default_gps
+  <xacro:gps_fix_macro
     namespace="${namespace}"
     parent_link="${namespace}/base_link">
-  </xacro:default_gps>  
+  </xacro:gps_fix_macro>
   
+  <!-- <xacro:default_gps
+    namespace="${namespace}"
+    parent_link="${namespace}/base_link">
+  </xacro:default_gps>   -->
+
  <!--  <xacro:hokuyo_lidar
     namespace="${namespace}"
     parent_link="${namespace}/base_link" >
