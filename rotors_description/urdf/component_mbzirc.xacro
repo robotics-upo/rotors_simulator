@@ -196,4 +196,13 @@
     </gazebo>
   </xacro:macro>
 
+  <xacro:macro name="gazebo_tf_plugin_macro" params="namespace">
+    <gazebo>
+      <plugin name="gazebo_tf_firefly_plugin" filename="libgazego_tf_firefly_plugin.so">
+        <robotNamespace>${namespace}</robotNamespace>
+        <updateRate>50.0</updateRate>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
   </robot>

@@ -507,6 +507,14 @@ if (NOT NO_ROS)
 endif()
 list(APPEND targets_to_install rotors_gazebo_wind_plugin)
 
+#========================================= TF FIREFLY ==========================================//
+add_library(gazego_tf_firefly_plugin SHARED src/gazego_tf_firefly_plugin.cpp)
+target_link_libraries(gazego_tf_firefly_plugin ${target_linking_LIBRARIES} )
+if (NOT NO_ROS)
+  add_dependencies(gazego_tf_firefly_plugin ${catkin_EXPORTED_TARGETS})
+endif()
+list(APPEND targets_to_install gazego_tf_firefly_plugin)
+
 # =============================================================================================== #
 # ======================================= EXTERNAL LIBRARIES ==================================== #
 # =============================================================================================== #
