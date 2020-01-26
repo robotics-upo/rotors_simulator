@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <assert.h>
 
-#include <rotors_gazebo_plugins/gazebo_tf_firefly_plugin.h>
+#include <rotors_gazebo_plugins/gazebo_tf_firefly_plugin.hpp>
 
 #if (GAZEBO_MAJOR_VERSION < 8)
 #include <gazebo/math/gzmath.hh>
@@ -69,14 +69,14 @@ namespace gazebo {
     alive_ = true;
 
 
-    //Stuff to ARDRONE
-    b_l_ffd_ = this->parent->GetLink("firefly/base_link");
-    r0_ffd_ = this->parent->GetLink("firefly/rotor_0");
-    r1_ffd_ = this->parent->GetLink("firefly/rotor_1");
-    r2_ffd_ = this->parent->GetLink("firefly/rotor_2");
-    r3_ffd_ = this->parent->GetLink("firefly/rotor_3");
-    r4_ffd_ = this->parent->GetLink("firefly/rotor_4");
-    r5_ffd_ = this->parent->GetLink("firefly/rotor_5");
+    //Get Links DIREFLY DRONE
+    b_l_ffd_ = this->parent->GetLink(robot_namespace_+"base_link");
+    r0_ffd_ = this->parent->GetLink(robot_namespace_+"rotor_0");
+    r1_ffd_ = this->parent->GetLink(robot_namespace_+"rotor_1");
+    r2_ffd_ = this->parent->GetLink(robot_namespace_+"rotor_2");
+    r3_ffd_ = this->parent->GetLink(robot_namespace_+"rotor_3");
+    r4_ffd_ = this->parent->GetLink(robot_namespace_+"rotor_4");
+    r5_ffd_ = this->parent->GetLink(robot_namespace_+"rotor_5");
 
    
 
@@ -133,10 +133,11 @@ namespace gazebo {
   }
 
 
-  void GazeboRosTfFirefly::QueueThread() {
+  void GazeboRosTfFirefly::QueueThread() 
+  {
     static const double timeout = 0.01;
-
-    while (alive_ && rosnode_->ok()) {
+    while (alive_ && rosnode_->ok()) 
+    {
       queue_.callAvailable(ros::WallDuration(timeout));
     }
   }
@@ -157,7 +158,7 @@ namespace gazebo {
     
 
     //Transform for ARDRONE
-    tf::Transform t_r0_,t_r1_, t_r2_, t_r3_, t_imu_, t_imugt_, t_odom_, t_odomgt_, t_ine_;
+    tf::Transform t_r0_,t_r1_, t_r2_, t_r3_, t_r4_, t_r5_, t_imu_, t_imugt_, t_odom_, t_odomgt_, t_ine_;
    
     t_r0_.setOrigin( tf::Vector3(0.186195, 0.1075, 0.037) );
     t_r0_.setRotation(tf::Quaternion(0,0,tf_r0_ffd_.rot.z,tf_r0_ffd_.rot.w));
@@ -192,19 +193,20 @@ namespace gazebo {
     
 
     //Broadcaster TF ARDRONE
-    br.sendTransform(tf::StampedTransform(t_r0_, ros::Time::now(), "firefly/base_link","firefly/rotor_0"));
-    br.sendTransform(tf::StampedTransform(t_r1_, ros::Time::now(), "firefly/base_link","firefly/rotor_1"));
-    br.sendTransform(tf::StampedTransform(t_r2_, ros::Time::now(), "firefly/base_link","firefly/rotor_2"));
-    br.sendTransform(tf::StampedTransform(t_r3_, ros::Time::now(), "firefly/base_link","firefly/rotor_3"));
-    br.sendTransform(tf::StampedTransform(t_r4_, ros::Time::now(), "firefly/base_link","firefly/rotor_4"));
-    br.sendTransform(tf::StampedTransform(t_r5_, ros::Time::now(), "firefly/base_link","firefly/rotor_5"));
-    br.sendTransform(tf::StampedTransform(t_imu_, ros::Time::now(), "firefly/base_link","firefly/imu_link"));
-    br.sendTransform(tf::StampedTransform(t_imugt_, ros::Time::now(), "firefly/base_link","firefly/imugt_link"));
-    br.sendTransform(tf::StampedTransform(t_odom_, ros::Time::now(), "firefly/base_link","firefly/odometry_sensor1_link"));
-    br.sendTransform(tf::StampedTransform(t_odomgt_, ros::Time::now(), "firefly/base_link","firefly/odometry_sensorgt_link"));
-    br.sendTransform(tf::StampedTransform(t_ine_, ros::Time::now(), "firefly/base_link","firefly/base_link_inertia"));
-    
+    br.sendTransform(tf::StampedTransform(t_r0_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"rotor_0"));
+    br.sendTransform(tf::StampedTransform(t_r1_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"rotor_1"));
+    br.sendTransform(tf::StampedTransform(t_r2_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"rotor_2"));
+    br.sendTransform(tf::StampedTransform(t_r3_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"rotor_3"));
+    br.sendTransform(tf::StampedTransform(t_r4_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"rotor_4"));
+    br.sendTransform(tf::StampedTransform(t_r5_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"rotor_5"));
+    br.sendTransform(tf::StampedTransform(t_imu_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"imu_link"));
+    br.sendTransform(tf::StampedTransform(t_imugt_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"imugt_link"));
+    br.sendTransform(tf::StampedTransform(t_odom_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"odometry_sensor1_link"));
+    br.sendTransform(tf::StampedTransform(t_odomgt_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"odometry_sensorgt_link"));
+    br.sendTransform(tf::StampedTransform(t_ine_, ros::Time::now(), robot_namespace_+"base_link",robot_namespace_+"base_link_inertia"));
   }
 
 
   GZ_REGISTER_MODEL_PLUGIN(GazeboRosTfFirefly)
+
+}
