@@ -6,7 +6,7 @@
 #include <iostream>
 #include<cmath>
 
-#include <mbzirc_simulator/ControlConfig.h>
+#include <rotors_control/ControlConfig.h>
 #include <dynamic_reconfigure/server.h>
 #include <dynamic_reconfigure/server.h>
 
