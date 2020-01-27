@@ -94,9 +94,9 @@
               <!-- <frameId>${namespace}/base_link</frameId> -->
               <topicName>gps</topicName>
               <velocityTopicName>gps_velocity</velocityTopicName> 
-              <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+              <gaussianNoise>0.2 0.2 0.2</gaussianNoise>
               <velocityDrift>0 0 0</velocityDrift>
-              <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+              <velocityGaussianNoise>0.2 0.2 0.2</velocityGaussianNoise>
               <referenceLatitude>49.9</referenceLatitude>
               <referenceLongitude>8.9</referenceLongitude>
               <referenceHeading>0</referenceHeading>
@@ -190,7 +190,7 @@
           <frameName>os1_sensor</frameName>
           <min_range>0.8</min_range>
           <max_range>120.0</max_range>
-          <gaussianNoise>0.008</gaussianNoise>  
+          <gaussianNoise>0.03</gaussianNoise>  
       </plugin>
      </sensor>
     </gazebo>
