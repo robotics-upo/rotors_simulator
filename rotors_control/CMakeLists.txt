@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rotors_control)
 
 add_definitions(-std=c++11)
+# set(CMAKE_BUILD_TYPE Debug)
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
@@ -61,6 +62,10 @@ target_link_libraries(roll_pitch_yawrate_thrust_controller_node
 add_executable(velocity_PID_controller src/nodes/velocity_PID_controller.cpp)
 add_dependencies(velocity_PID_controller ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 target_link_libraries(velocity_PID_controller ${catkin_LIBRARIES})
+
+add_executable(position_PID_controller src/nodes/position_PID_controller.cpp)
+add_dependencies(position_PID_controller ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+target_link_libraries(position_PID_controller ${catkin_LIBRARIES})
 
 install(TARGETS lee_position_controller roll_pitch_yawrate_thrust_controller
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

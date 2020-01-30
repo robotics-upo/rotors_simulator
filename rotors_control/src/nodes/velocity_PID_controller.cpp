@@ -32,8 +32,8 @@ public:
   ros::Duration delta_t_vel_x, delta_t_vel_y, delta_t_vel_z;
   // ros::Time last_setpoint_msg_time_;
 
-  // double roll_upper_limit, pitch_upper_limit, thrust_upper_limit, yaw_rate_upper_limit;
-  // double roll_lower_limit, pitch_lower_limit, thrust_lower_limit, yaw_rate_lower_limit;
+  double roll_upper_limit, pitch_upper_limit; //thrust_upper_limit, yaw_rate_upper_limit;
+  double roll_lower_limit, pitch_lower_limit; //thrust_lower_limit, yaw_rate_lower_limit;
 
   //Dynamic reconfigure
   std::unique_ptr<dynamic_reconfigure::Server<mbzirc_simulator::ControlConfig>> server;
@@ -127,13 +127,13 @@ VelocityPID::VelocityPID(ros::NodeHandle nh, ros::NodeHandle pnh)
   // lower_limit_ = -1000;
 
   //maximos del joy k habia -> de aqui pongo maximos de mis salidas
-  // pnh.param("roll_upper_limit", roll_upper_limit, 10.0 * M_PI / 180.0);         // pasamos grados a [rad]
-  // pnh.param("pitch_upper_limit", pitch_upper_limit, 10.0 * M_PI / 180.0);       // pasamos grados a [rad]
+  pnh.param("roll_upper_limit", roll_upper_limit, 30.0 * M_PI / 180.0);         // pasamos grados a [rad]
+  pnh.param("pitch_upper_limit", pitch_upper_limit, 30.0 * M_PI / 180.0);       // pasamos grados a [rad]
   // pnh.param("yaw_rate_upper_limit", yaw_rate_upper_limit, 45.0 * M_PI / 180.0); // pasamos grados a [rad]
   // pnh.param("thrust_upper_limit", thrust_upper_limit, 30.0);                    // [N]
 
-  // pnh.param("roll_lower_limit", roll_lower_limit, -roll_upper_limit);             // pasamos grados a [rad]
-  // pnh.param("pitch_lower_limit", pitch_lower_limit, -pitch_upper_limit);          // pasamos grados a [rad]
+  pnh.param("roll_lower_limit", roll_lower_limit, -roll_upper_limit);           
+  pnh.param("pitch_lower_limit", pitch_lower_limit, -pitch_upper_limit);         
   // pnh.param("yaw_rate_lower_limit", yaw_rate_lower_limit, -yaw_rate_upper_limit); // pasamos grados a [rad]
   // pnh.param("thrust_lower_limit", thrust_lower_limit, 0.0);                       // [N]
 
@@ -184,8 +184,8 @@ void VelocityPID::executePIDs_sumative()
   // std::cout << "La vel x target en el PID es: " << target_vel_x << std::endl;
   // std::cout << "La vel x actual en el PID es: " << gazebo_vel_x << std::endl;
 
-  std::cout << "La vel y target en el PID es: " << target_vel_y << std::endl;
-  std::cout << "La vel y actual en el PID es: " << gazebo_vel_y << std::endl;
+  // std::cout << "La vel y target en el PID es: " << target_vel_y << std::endl;
+  // std::cout << "La vel y actual en el PID es: " << gazebo_vel_y << std::endl;
 
   double pitch_increment, roll_increment, thrust_z_increment; //hacemos control sumativo
 
@@ -204,17 +204,17 @@ void VelocityPID::executePIDs_sumative()
   reference_thrust_z += thrust_z_increment;
   
 
-  // //Apply saturation limits to roll
-  // if (reference_roll > roll_upper_limit)
-  //   reference_roll = roll_upper_limit;
-  // else if (reference_roll < roll_lower_limit)
-  //   reference_roll = roll_lower_limit;
+  //Apply saturation limits to roll
+  if (reference_roll > roll_upper_limit)
+    reference_roll = roll_upper_limit;
+  else if (reference_roll < roll_lower_limit)
+    reference_roll = roll_lower_limit;
 
-  // //Apply saturation limits to pitch
-  // if (reference_pitch > pitch_upper_limit)
-  //   reference_pitch = pitch_upper_limit;
-  // else if (reference_pitch < pitch_lower_limit)
-  //   reference_pitch = pitch_lower_limit;
+  //Apply saturation limits to pitch
+  if (reference_pitch > pitch_upper_limit)
+    reference_pitch = pitch_upper_limit;
+  else if (reference_pitch < pitch_lower_limit)
+    reference_pitch = pitch_lower_limit;
 
   // //Apply saturation limits to thrust z component
   // if (reference_thrust_z > thrust_upper_limit)
@@ -230,7 +230,7 @@ void VelocityPID::executePIDs_sumative()
   roll_pitch_yawrate_thrust_reference_msg.thrust = reference_thrust;
 
   // std::cout << "el thrust en z de referencia a la salida del PID es: " << reference_thrust.z << std::endl;
-  std::cout << "el roll de referencia a la salida del PID es: " << reference_roll << std::endl;
+  // std::cout << "el roll de referencia a la salida del PID es: " << reference_roll << std::endl;
   // std::cout << "el pitch de referencia a la salida del PID es: " << reference_pitch << std::endl;
 
   // //yaw_rate no pasa por PID, pero comprobamos limites
