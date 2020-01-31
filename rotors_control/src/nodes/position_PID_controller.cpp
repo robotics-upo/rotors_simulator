@@ -185,7 +185,7 @@ void PositionPID::executePIDs_sumative()
   //Increment de reference
   reference_vel_x += vel_x_increment; //mirar estos signos
   reference_vel_y += vel_y_increment;
-  reference_vel_z += vel_z_increment;
+  reference_vel_z -= vel_z_increment;
   reference_yaw_rate += yaw_rate_increment;
   
 
