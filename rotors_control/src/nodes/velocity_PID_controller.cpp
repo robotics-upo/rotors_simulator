@@ -94,8 +94,9 @@ VelocityPID::VelocityPID(ros::NodeHandle nh, ros::NodeHandle pnh)
 
   pub_actuations = nh.advertise<mav_msgs::RollPitchYawrateThrust>("/firefly1/command/roll_pitch_yawrate_thrust", 1); //cambiar para que acepte distintos drones
 
-  reference_thrust.x = 0;
-  reference_thrust.y = 0;
+  reference_thrust.x = 0.0;
+  reference_thrust.y = 0.0;
+  reference_thrust.z = 0.0;
 
   error_integral_vel_x = 0;
   error_integral_vel_y = 0;
@@ -109,12 +110,27 @@ VelocityPID::VelocityPID(ros::NodeHandle nh, ros::NodeHandle pnh)
   reference_pitch = 0.0;
   reference_thrust_z = 0.0;
 
+  roll_pitch_yawrate_thrust_reference_msg.roll = 0.0; 
+  roll_pitch_yawrate_thrust_reference_msg.pitch = 0.0;
+  roll_pitch_yawrate_thrust_reference_msg.yaw_rate = 0.0;
+  roll_pitch_yawrate_thrust_reference_msg.thrust = reference_thrust;
+
+
   target_vel_x = 0.0;
   target_vel_y = 0.0;
   target_vel_z = 0.0;
   target_yaw_rate = 0.0;
 
-  is_initialized =false;
+  gazebo_vel_x = 0.0;
+  gazebo_vel_y = 0.0; 
+  gazebo_vel_z = 0.0;
+
+  is_initialized = false;
+
+  delta_t_vel_x = ros::Duration(0.0);
+  delta_t_vel_y = ros::Duration(0.0);
+  delta_t_vel_z = ros::Duration(0.0);
+  // prev_time_vel_x = ros::Time::Now()
 
   //Varaibles for PID extras TODOs
   // c_ = 1.;
@@ -187,7 +203,7 @@ void VelocityPID::executePIDs_sumative()
   // std::cout << "La vel y target en el PID es: " << target_vel_y << std::endl;
   // std::cout << "La vel y actual en el PID es: " << gazebo_vel_y << std::endl;
 
-  double pitch_increment, roll_increment, thrust_z_increment; //hacemos control sumativo
+  double pitch_increment = 0.0, roll_increment = 0.0, thrust_z_increment = 0.0; //hacemos control sumativo
 
   pitch_increment = PID(gain_P_vel_x, gain_I_vel_x, gain_D_vel_x, target_vel_x, gazebo_vel_x, vel_x_error_,
                         error_integral_vel_x, prev_time_vel_x, delta_t_vel_x);
@@ -204,17 +220,17 @@ void VelocityPID::executePIDs_sumative()
   reference_thrust_z += thrust_z_increment;
   
 
-  //Apply saturation limits to roll
-  if (reference_roll > roll_upper_limit)
-    reference_roll = roll_upper_limit;
-  else if (reference_roll < roll_lower_limit)
-    reference_roll = roll_lower_limit;
+  // //Apply saturation limits to roll
+  // if (reference_roll > roll_upper_limit)
+  //   reference_roll = roll_upper_limit;
+  // else if (reference_roll < roll_lower_limit)
+  //   reference_roll = roll_lower_limit;
 
-  //Apply saturation limits to pitch
-  if (reference_pitch > pitch_upper_limit)
-    reference_pitch = pitch_upper_limit;
-  else if (reference_pitch < pitch_lower_limit)
-    reference_pitch = pitch_lower_limit;
+  // //Apply saturation limits to pitch
+  // if (reference_pitch > pitch_upper_limit)
+  //   reference_pitch = pitch_upper_limit;
+  // else if (reference_pitch < pitch_lower_limit)
+  //   reference_pitch = pitch_lower_limit;
 
   // //Apply saturation limits to thrust z component
   // if (reference_thrust_z > thrust_upper_limit)
@@ -248,7 +264,7 @@ double VelocityPID::PID(double _gain_P, double _gain_I, double _gain_D, double _
 {
   //based on doCalcs() from https://bitbucket.org/AndyZe/pid/src/master/src/pid.cpp
 
-  double control_effort_, proportional_, integral_, derivative_, error_derivative_; //estos no guardan memoria, por tanto puedo ponerlo aqui
+  double control_effort_ = 0.0, proportional_ = 0.0, integral_, derivative_ = 0.0, error_derivative_ = 0.0; //estos no guardan memoria, por tanto puedo ponerlo aqui
 
   // if (!((_gain_P <= 0. && _gain_I <= 0.) ||
   //         (_gain_P >= 0. && _gain_I >= 0.)))  // All 2 gains should have the same sign
@@ -296,12 +312,6 @@ double VelocityPID::PID(double _gain_P, double _gain_I, double _gain_D, double _
   derivative_ = _gain_D * error_derivative_;
   control_effort_ = proportional_ + integral_ + derivative_;
 
-  // //Apply saturation limits - TODO -> al ser sumativo el PID, lo hago fuera en la salida
-  // if (control_effort_ > upper_limit_)
-  //   control_effort_ = upper_limit_;
-  // else if (control_effort_ < lower_limit_)
-  //   control_effort_ = lower_limit_;
-
   return control_effort_;
 }
 
@@ -340,6 +350,7 @@ int main(int argc, char **argv)
   {
     if (velocity_PID.is_initialized){
     velocity_PID.executePIDs_sumative();
+    velocity_PID.roll_pitch_yawrate_thrust_reference_msg.header.stamp = ros::Time::now();
     velocity_PID.pub_actuations.publish(velocity_PID.roll_pitch_yawrate_thrust_reference_msg);
      }
     ros::spinOnce();

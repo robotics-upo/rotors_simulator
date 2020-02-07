@@ -178,7 +178,7 @@ void PositionPID::executePIDs_sumative()
 
   vel_y_increment = PID(gain_P_pos_y, target_pos_y, gazebo_pos_y, pos_y_error_, prev_time_pos_y, delta_t_pos_y);
 
-  vel_z_increment = PID(gain_P_pos_z, target_pos_z, gazebo_pos_x, pos_z_error_, prev_time_pos_z, delta_t_pos_z);
+  vel_z_increment = PID(gain_P_pos_z, target_pos_z, gazebo_pos_z, pos_z_error_, prev_time_pos_z, delta_t_pos_z);
   
   yaw_rate_increment = PID(gain_P_yaw, target_yaw, gazebo_yaw, yaw_error_, prev_time_yaw, delta_t_yaw);
 
@@ -202,6 +202,9 @@ void PositionPID::executePIDs_sumative()
   pose_reference_msg.axes[1] = reference_vel_y;
   pose_reference_msg.axes[2] = reference_vel_z;
   pose_reference_msg.axes[3] = reference_yaw_rate;
+  std::cout << "gazebo pos z: " << gazebo_pos_z << std::endl;
+  std::cout << "target pos z: " << target_pos_z<< std::endl;
+  std::cout << "Publishing vel z: " << reference_vel_z<< std::endl;
 
   ros::Time update_time = ros::Time::now();
   pose_reference_msg.header.stamp = update_time;

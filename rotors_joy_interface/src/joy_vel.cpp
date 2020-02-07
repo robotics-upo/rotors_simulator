@@ -112,6 +112,7 @@ void Joy::JoyCallback(const sensor_msgs::JoyConstPtr& msg) {
 }
 
 void Joy::Publish() {
+  control_msg_.header.stamp = ros::Time::now();
   ctrl_pub_.publish(control_msg_); //en vel publicamos un joy que lo tomara nuestro nodo de PID en vel
 }
 
