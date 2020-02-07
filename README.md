@@ -33,7 +33,10 @@ Installation Instructions - Ubuntu 16.04 with ROS Kinetic and Gazebo 7
 ----------------------------------------------------------------------
 
 This simulator requires to have the last version of mavros mavlink and mavcomm libraries. For installing these just execute:
+
+```
 sudo apt-get install ros-kinetic-mavlink ros-kinetic-mavros ros-kinetic-mav-comm
+```
 
 
 Basic Usage
