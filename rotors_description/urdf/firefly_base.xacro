@@ -52,6 +52,10 @@
   <xacro:thermal_camera_macro namespace="${namespace}" parent_link="${namespace}/base_link" camera_suffix="unique">
   </xacro:thermal_camera_macro>
 
+  <!-- Adding thermal camera looking down -->
+  <xacro:thermal_camera_down_macro namespace="${namespace}" parent_link="${namespace}/base_link" camera_suffix="unique">
+  </xacro:thermal_camera_down_macro>
+
   <xacro:ouster_lidar namespace="${namespace}" parent_link="${namespace}/base_link">
   </xacro:ouster_lidar>
 

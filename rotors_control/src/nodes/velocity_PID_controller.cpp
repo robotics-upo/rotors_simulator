@@ -179,7 +179,6 @@ void VelocityPID::gazebo_vel_callback(nav_msgs::Odometry _msg)
   gazebo_vel_x = _msg.twist.twist.linear.x;
   gazebo_vel_y = _msg.twist.twist.linear.y;
   gazebo_vel_z = _msg.twist.twist.linear.z;
-  //std::cout << gazebo_vel_x;
 }
 
 void VelocityPID::target_vel_callback(sensor_msgs::Joy _current_joy)
@@ -193,15 +192,6 @@ void VelocityPID::target_vel_callback(sensor_msgs::Joy _current_joy)
 
 void VelocityPID::executePIDs_sumative()
 {
-
-  // std::cout << "La vel z target en el PID es: " << target_vel_z << std::endl;
-  // std::cout << "La vel z actual en el PID es: " << gazebo_vel_z << std::endl;
-
-  // std::cout << "La vel x target en el PID es: " << target_vel_x << std::endl;
-  // std::cout << "La vel x actual en el PID es: " << gazebo_vel_x << std::endl;
-
-  // std::cout << "La vel y target en el PID es: " << target_vel_y << std::endl;
-  // std::cout << "La vel y actual en el PID es: " << gazebo_vel_y << std::endl;
 
   double pitch_increment = 0.0, roll_increment = 0.0, thrust_z_increment = 0.0; //hacemos control sumativo
 
@@ -220,17 +210,17 @@ void VelocityPID::executePIDs_sumative()
   reference_thrust_z += thrust_z_increment;
   
 
-  // //Apply saturation limits to roll
-  // if (reference_roll > roll_upper_limit)
-  //   reference_roll = roll_upper_limit;
-  // else if (reference_roll < roll_lower_limit)
-  //   reference_roll = roll_lower_limit;
+  //Apply saturation limits to roll
+  if (reference_roll > roll_upper_limit)
+    reference_roll = roll_upper_limit;
+  else if (reference_roll < roll_lower_limit)
+    reference_roll = roll_lower_limit;
 
-  // //Apply saturation limits to pitch
-  // if (reference_pitch > pitch_upper_limit)
-  //   reference_pitch = pitch_upper_limit;
-  // else if (reference_pitch < pitch_lower_limit)
-  //   reference_pitch = pitch_lower_limit;
+  //Apply saturation limits to pitch
+  if (reference_pitch > pitch_upper_limit)
+    reference_pitch = pitch_upper_limit;
+  else if (reference_pitch < pitch_lower_limit)
+    reference_pitch = pitch_lower_limit;
 
   // //Apply saturation limits to thrust z component
   // if (reference_thrust_z > thrust_upper_limit)
@@ -244,10 +234,6 @@ void VelocityPID::executePIDs_sumative()
 
   reference_thrust.z = reference_thrust_z + (sqrt(pow(reference_roll,2) + pow(reference_pitch,2)) * c_thrust_increment); 
   roll_pitch_yawrate_thrust_reference_msg.thrust = reference_thrust;
-
-  // std::cout << "el thrust en z de referencia a la salida del PID es: " << reference_thrust.z << std::endl;
-  // std::cout << "el roll de referencia a la salida del PID es: " << reference_roll << std::endl;
-  // std::cout << "el pitch de referencia a la salida del PID es: " << reference_pitch << std::endl;
 
   // //yaw_rate no pasa por PID, pero comprobamos limites
   // if (target_yaw_rate > yaw_rate_upper_limit)
@@ -285,14 +271,14 @@ double VelocityPID::PID(double _gain_P, double _gain_I, double _gain_D, double _
       ROS_ERROR("delta_t is 0, skipping this loop. Possible overloaded cpu "
                 "at time: %f",
                 ros::Time::now().toSec());
-      return control_effort_; //esto es correcto??
+      return control_effort_; 
     }
   }
   else
   {
     ROS_INFO("prev_time is 0, doing nothing");
     prev_time_ = ros::Time::now();
-    return control_effort_; //esto es correcto??
+    return control_effort_; 
   }
 
   //integrate the error
