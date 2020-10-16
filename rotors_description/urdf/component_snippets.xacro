@@ -20,7 +20,7 @@
 -->
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:property name="M_PI" value="3.14159265359" />
+  <xacro:property name="pi" value="3.14159265359" />
 
   <!-- Macro to add logging to a bag file. -->
   <xacro:macro name="bag_plugin_macro"
@@ -32,69 +32,10 @@
         <linkName>${namespace}/base_link</linkName>
         <frameId>${namespace}/base_link</frameId>
         <rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>
-	      <waitToRecordBag>${wait_to_record_bag}</waitToRecordBag>
+	<waitToRecordBag>${wait_to_record_bag}</waitToRecordBag>
       </plugin>
     </gazebo>
   </xacro:macro>
-
-
-<!-- Macro to add Hokuyo range sensor -->
-<xacro:macro name="hokuyo_lidar" params="namespace parent_link">
-    <link name="${namespace}/hokuyo_link">
-      <inertial>
-         <mass value="0.01" />
-         <inertia ixx="1e-6" ixy="0.0" ixz="0.0" iyy="1e-6" iyz="0.0" izz="1e-6" /> 
-      </inertial>
-      <visual name="visual">
-        <geometry>
-          <mesh filename="package://rotors_description/meshes/hokuyo.dae" />
-        </geometry>
-      </visual>
-     </link>
-
-     <joint name="laser" type="fixed">
-      <parent link="${parent_link}" />
-      <child link="${namespace}/hokuyo_link" />
-      <origin xyz="0 0 0.05" rpy="0 0 0" />
-    </joint>
-
-    <gazebo reference="${namespace}/hokuyo_link">
-    <sensor type="gpu_ray" name="head_hokuyo_sensor">
-      <pose>0 0 0 0 0 0</pose>
-      <visualize>false</visualize>
-      <update_rate>40</update_rate>
-      <ray>
-        <scan>
-          <horizontal>
-            <samples>720</samples>
-            <resolution>1</resolution>
-            <min_angle>-2.35619</min_angle>
-            <max_angle>2.35619</max_angle>
-          </horizontal>
-        </scan>
-        <range>
-          <min>0.10</min>
-          <max>30.0</max>
-          <resolution>0.01</resolution>
-        </range>
-        <noise>
-          <type>gaussian</type>
-          <!-- Noise parameters based on published spec for Hokuyo laser
-               achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
-               stddev of 0.01m will put 99.7% of samples within 0.03m of the true
-               reading. -->
-          <mean>0.0</mean>
-          <stddev>0.01</stddev>
-        </noise>
-      </ray>
-      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_gpu_laser.so">
-        <topicName>/drone11/scan</topicName>
-        <frameName>hokuyo_link</frameName>
-      </plugin>
-    </sensor>
-    </gazebo>
-  </xacro:macro>
-
 
   <!-- Macro to add a camera. -->
   <xacro:macro name="camera_macro"
@@ -175,7 +116,7 @@
       </sensor>
     </gazebo>
   </xacro:macro>
- 
+
   <!-- Camera joint macro - just the joints, links, and collisions for a single
        camera. -->
   <xacro:macro name="camera_joint_macro"
@@ -345,12 +286,12 @@
     <gazebo>
       <plugin name="mavlink_interface" filename="librotors_gazebo_mavlink_interface.so">
         <robotNamespace>${namespace}</robotNamespace>
-	      <mavlinkControlSubTopic>${mavlink_sub_topic}</mavlinkControlSubTopic>
+	<mavlinkControlSubTopic>${mavlink_sub_topic}</mavlinkControlSubTopic>
         <imuSubTopic>${imu_sub_topic}</imuSubTopic>
         <mavlinkHilSensorPubTopic>${mavlink_pub_topic}</mavlinkHilSensorPubTopic>
-	      <motorSpeedsPubTopic>${motors_speeds_pub_topic}</motorSpeedsPubTopic>
-	      <gpsUpdateFreq>${gps_update_freq}</gpsUpdateFreq> <!-- Frequency of HIL GPS messages [Hz] -->
-	      <rotorCount>${rotor_count}</rotorCount>
+	<motorSpeedsPubTopic>${motors_speeds_pub_topic}</motorSpeedsPubTopic>
+	<gpsUpdateFreq>${gps_update_freq}</gpsUpdateFreq> <!-- Frequency of HIL GPS messages [Hz] -->
+	<rotorCount>${rotor_count}</rotorCount>
         <!-- [Gauss] Below are the North, East, and Down components of the Earth's magnetic field at the reference location.
              The default reference location is Zurich (lat=+47.3667degN, lon=+8.5500degE, h=+500m, WGS84).
 	     You can obtain the magnetic field strength for your location using the World Magnetic Model: 
@@ -358,7 +299,7 @@
         <referenceMagNorth>${reference_magnetic_field_north}</referenceMagNorth>
         <referenceMagEast>${reference_magnetic_field_east}</referenceMagEast>
         <referenceMagDown>${reference_magnetic_field_down}</referenceMagDown>
-	      <referenceLatitude>${reference_latitude}</referenceLatitude> <!-- the initial latitude [degrees [-90, 90]] -->
+	<referenceLatitude>${reference_latitude}</referenceLatitude> <!-- the initial latitude [degrees [-90, 90]] -->
         <referenceLongitude>${reference_longitude}</referenceLongitude> <!-- the initial longitude [degrees [-180, 180]] -->
         <referenceAltitude>${reference_altitude}</referenceAltitude> <!-- the initial altitude [m] -->
       </plugin>
@@ -528,7 +469,7 @@
         </gps>
         <plugin filename="librotors_gazebo_gps_plugin.so" name="rotors_gazebo_gps${gps_suffix}_plugin">
           <robotNamespace>${namespace}</robotNamespace> <!-- (string, required): ros namespace in which the messages are published -->
-          <linkName>${namespace}/base_link</linkName> <!-- (string, required): name of the body which holds the GPS sensor -->
+          <linkName>${namespace}/gps${gps_suffix}_link</linkName> <!-- (string, required): name of the body which holds the GPS sensor -->
           <gpsTopic>${gps_topic}</gpsTopic> <!-- (string): name of the sensor output topic and prefix of service names (defaults to 'gps') -->
           <groundSpeedTopic>${ground_speed_topic}</groundSpeedTopic> <!-- (string): name of the ground speed output topic (defaults to 'ground_speed') -->
           <horPosStdDev>${horizontal_pos_std_dev}</horPosStdDev> <!-- standard deviation for horizontal position noise [m] -->
@@ -578,11 +519,43 @@
     </gazebo>
   </xacro:macro>
 
+  <!-- Macro to add an air pressure sensor. -->
+  <xacro:macro name="pressure_sensor_plugin_macro"
+    params="namespace pressure_sensor_suffix parent_link pressure_topic
+      mass_pressure_sensor reference_altitude pressure_variance *inertia
+      *origin">
+    <!-- Pressure sensor link -->
+    <link name="${namespace}/pressure_sensor${pressure_sensor_suffix}_link">
+      <inertial>
+        <xacro:insert_block name="inertia" />
+        <mass value="${mass_pressure_sensor}" />  <!-- [kg] -->
+        <origin xyz="0 0 0" rpy="0 0 0" />
+      </inertial>
+    </link>
+    <!-- Pressure sensor joint -->
+    <joint name="${namespace}/pressure_sensor${pressure_sensor_suffix}_joint" type="revolute">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent_link}" />
+      <child link="${namespace}/pressure_sensor${pressure_sensor_suffix}_link" />
+      <limit upper="0" lower="0" effort="0" velocity="0" />
+    </joint>
+    <gazebo>
+      <plugin filename="librotors_gazebo_pressure_plugin.so" name="rotors_gazebo_pressure_sensor${pressure_sensor_suffix}_plugin">
+        <robotNamespace>${namespace}</robotNamespace> <!-- (string, required): ros namespace in which the messages are published -->
+        <linkName>${namespace}/pressure_sensor${pressure_sensor_suffix}_link</linkName> <!-- (string, required): name of the body which holds the pressure sensor -->
+        <pressureTopic>${pressure_topic}</pressureTopic> <!-- (string): name of the sensor output topic and prefix of service names (defaults to 'air_pressure') -->
+        <referenceAltitude>${reference_altitude}</referenceAltitude> <!-- the initial altitude [m] -->
+        <pressureVariance>${pressure_variance}</pressureVariance> <!-- the air pressure variance [Pa^2] -->
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
   <!-- Macro to add the wind plugin. -->
   <xacro:macro name="wind_plugin_macro"
     params="namespace xyz_offset wind_direction wind_force_mean
       wind_gust_direction wind_gust_duration wind_gust_start
-      wind_gust_force_mean wind_speed_mean">
+      wind_gust_force_mean wind_speed_mean use_custom_static_wind_field 
+      custom_wind_field_path">
     <gazebo>
       <plugin filename="librotors_gazebo_wind_plugin.so" name="wind_plugin">
         <frameId>world</frameId>
@@ -596,6 +569,8 @@
         <windGustStart>${wind_gust_start}</windGustStart> <!-- [s] -->
         <windGustForceMean>${wind_gust_force_mean}</windGustForceMean> <!-- [N] -->
         <windSpeedMean>${wind_speed_mean}</windSpeedMean> <!-- [m/s] -->
+        <useCustomStaticWindField>${use_custom_static_wind_field}</useCustomStaticWindField>
+        <customWindFieldPath>${custom_wind_field_path}</customWindFieldPath> <!-- from ~/.ros -->
       </plugin>
     </gazebo>
   </xacro:macro>
@@ -928,11 +903,20 @@
     </xacro:magnetometer_plugin_macro>
   </xacro:macro>
 
+  <xacro:macro name="default_pressure_sensor" params="namespace parent_link">
+    <xacro:pressure_sensor_plugin_macro
+      namespace="${namespace}"
+      pressure_sensor_suffix=""
+      parent_link="${parent_link}"
+      pressure_topic="air_pressure"
+      mass_pressure_sensor="0.015"
+      reference_altitude="500.0"
+      pressure_variance="0.0">
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:pressure_sensor_plugin_macro>
+  </xacro:macro>
 
-  <!-- DEFAULT VALUES OF REFERENCES -->
-  <!--reference_latitude="47.3667"
-      reference_longitude="8.5500"
-      reference_altitude="500.0" -->
   <xacro:macro name="default_mavlink_interface" params="namespace imu_sub_topic rotor_count">
     <xacro:mavlink_interface_macro
       namespace="${namespace}"
@@ -945,9 +929,9 @@
       reference_magnetic_field_north="0.21475"
       reference_magnetic_field_east="0.00797"
       reference_magnetic_field_down="0.42817"
-      reference_latitude="49.9"
-      reference_longitude="8.9"
-      reference_altitude="0.0">
+      reference_latitude="47.3667"
+      reference_longitude="8.5500"
+      reference_altitude="500.0">
     </xacro:mavlink_interface_macro>
   </xacro:macro>
 

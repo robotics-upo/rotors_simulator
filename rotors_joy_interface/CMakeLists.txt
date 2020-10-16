@@ -23,6 +23,10 @@ add_executable(rotors_joy_interface src/joy.cpp)
 add_dependencies(rotors_joy_interface ${catkin_EXPORTED_TARGETS})
 target_link_libraries(rotors_joy_interface ${catkin_LIBRARIES})
 
+add_executable(joy_vel src/joy_vel.cpp)
+add_dependencies(joy_vel ${catkin_EXPORTED_TARGETS})
+target_link_libraries(joy_vel ${catkin_LIBRARIES})
+
 install(TARGETS rotors_joy_interface
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

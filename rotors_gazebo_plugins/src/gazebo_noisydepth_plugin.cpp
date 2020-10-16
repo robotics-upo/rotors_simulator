@@ -191,7 +191,7 @@ void GazeboNoisyDepth::OnNewDepthFrame(const float *_image, unsigned int _width,
                                        const std::string &_format) {
   if (!this->initialized_ || this->height_ <= 0 || this->width_ <= 0) return;
 
-  this->depth_sensor_update_time_ = this->parentSensor->GetLastMeasurementTime();
+  this->depth_sensor_update_time_ = this->parentSensor->LastMeasurementTime();
 
   // check if there are subscribers, if not disable parent, else process images..
   if (this->parentSensor->IsActive()) {
@@ -217,7 +217,7 @@ void GazeboNoisyDepth::OnNewImageFrame(const unsigned char *_image,
                                        const std::string &_format) {
   if (!this->initialized_ || this->height_ <= 0 || this->width_ <= 0) return;
 
-  this->sensor_update_time_ = this->parentSensor_->GetLastMeasurementTime();
+  this->sensor_update_time_ = this->parentSensor_->LastMeasurementTime();
 
   // check if there are subscribers, if not disable parent, else process images..
   if (this->parentSensor->IsActive()) {
@@ -281,9 +281,9 @@ void GazeboNoisyDepth::PublishCameraInfo() {
   GazeboRosCameraUtils::PublishCameraInfo();
 
   if (this->depth_info_connect_count_ > 0) {
-    this->sensor_update_time_ = this->parentSensor_->GetLastMeasurementTime();
+    this->sensor_update_time_ = this->parentSensor_->LastMeasurementTime();
 #if GAZEBO_MAJOR_VERSION >= 8
-    common::Time cur_time = this->world_->GetSimTime();
+    common::Time cur_time = this->world_->SimTime();
 #else
     common::Time cur_time = this->world_->GetSimTime();
 #endif

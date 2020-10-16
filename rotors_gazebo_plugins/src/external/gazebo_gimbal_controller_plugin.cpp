@@ -203,23 +203,23 @@ void GimbalControllerPlugin::OnYawStringMsg(ConstAnyPtr &_msg)
 }
 
 /////////////////////////////////////////////////
-math::Vector3 GimbalControllerPlugin::ThreeAxisRot(
+ignition::ignition::math::Vector3d GimbalControllerPlugin::ThreeAxisRot(
   double r11, double r12, double r21, double r31, double r32)
 {
-  return math::Vector3 d(
+  return ignition::ignition::math::Vector3d d(
     atan2( r31, r32 ),
     asin ( r21 ),
     atan2( r11, r12 ));
 }
 
 /////////////////////////////////////////////////
-math::Vector3 GimbalControllerPlugin::QtoZXY(
-  const math::Quaternion &_q)
+ignition::ignition::math::Vector3d GimbalControllerPlugin::QtoZXY(
+  const ignition::math::Quaterniond &_q)
 {
   // taken from
   // http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
   // case zxy:
-  math::Vector3 result = this->ThreeAxisRot(
+  ignition::ignition::math::Vector3d result = this->ThreeAxisRot(
     -2*(_q.X()*_q.Y() - _q.W()*_q.Z()),
     _q.W()*_q.W() - _q.X()*_q.X() + _q.Y()*_q.Y() - _q.Z()*_q.Z(),
     2*(_q.Y()*_q.Z() + _q.W()*_q.X()),
@@ -253,17 +253,17 @@ void GimbalControllerPlugin::OnUpdate()
     const double yDir = 1;
 
     // truncate command inside joint angle limits
-    double rollLimited = math::clamp(this->rollCommand,
+    double rollLimited = ignition::math::clamp(this->rollCommand,
       rDir*this->rollJoint->GetUpperLimit(0).Radian(),
 	  rDir*this->rollJoint->GetLowerLimit(0).Radian());
-    double pitchLimited = math::clamp(this->pitchCommand,
+    double pitchLimited = ignition::math::clamp(this->pitchCommand,
       pDir*this->pitchJoint->GetUpperLimit(0).Radian(),
       pDir*this->pitchJoint->GetLowerLimit(0).Radian());
-    double yawLimited = math::clamp(this->yawCommand,
+    double yawLimited = ignition::math::clamp(this->yawCommand,
       yDir*this->yawJoint->GetLowerLimit(0).Radian(),
 	  yDir*this->yawJoint->GetUpperLimit(0).Radian());
 
-    math::Quaternion commandRPY(
+    ignition::math::Quaterniond commandRPY(
       rollLimited, pitchLimited, yawLimited);
 
 
@@ -271,29 +271,29 @@ void GimbalControllerPlugin::OnUpdate()
 
     /// currentAngleYPRVariable is defined in roll-pitch-yaw-fixed-axis
     /// and gimbal is constructed using yaw-roll-pitch-variable-axis
-    math::Vector3 currentAngleYPRVariable(
+    ignition::ignition::math::Vector3d currentAngleYPRVariable(
       this->imuSensor->Orientation().Euler());
-    math::Vector3 currentAnglePRYVariable(
+    ignition::ignition::math::Vector3d currentAnglePRYVariable(
       this->QtoZXY(currentAngleYPRVariable));
 
     /// get joint limits (in sensor frame)
     /// TODO: move to Load() if limits do not change
-    math::Vector3 lowerLimitsPRY
+    ignition::ignition::math::Vector3d lowerLimitsPRY
       (pDir*this->pitchJoint->GetLowerLimit(0).Radian(),
        rDir*this->rollJoint->GetLowerLimit(0).Radian(),
        yDir*this->yawJoint->GetLowerLimit(0).Radian());
-    math::Vector3 upperLimitsPRY
+    ignition::ignition::math::Vector3d upperLimitsPRY
       (pDir*this->pitchJoint->GetUpperLimit(0).Radian(),
        rDir*this->rollJoint->GetUpperLimit(0).Radian(),
        yDir*this->yawJoint->GetUpperLimit(0).Radian());
 
     // normalize errors
     double pitchError = this->ShortestAngularDistance(
-      pitchLimited, currentAnglePRYVariable.x);
+      pitchLimited, currentAnglePRYVariable.X());
     double rollError = this->ShortestAngularDistance(
-      rollLimited, currentAnglePRYVariable.y);
+      rollLimited, currentAnglePRYVariable.Y());
     double yawError = this->ShortestAngularDistance(
-      yawLimited, currentAnglePRYVariable.z);
+      yawLimited, currentAnglePRYVariable.Z());
 
     // Clamp errors based on current angle and estimated errors from rotations:
     // given error = current - target, then
@@ -304,41 +304,41 @@ void GimbalControllerPlugin::OnUpdate()
     // current angle - lower limit > error > current angle - upper limit
     // re-expressed as clamps:
     // hardcoded negative joint axis for pitch and roll
-    if (lowerLimitsPRY.x < upperLimitsPRY.x)
+    if (lowerLimitsPRY.X() < upperLimitsPRY.X())
     {
-      pitchError = math::clamp(pitchError,
-        currentAnglePRYVariable.x - upperLimitsPRY.x,
-        currentAnglePRYVariable.x - lowerLimitsPRY.x);
+      pitchError = ignition::math::clamp(pitchError,
+        currentAnglePRYVariable.X() - upperLimitsPRY.X(),
+        currentAnglePRYVariable.X() - lowerLimitsPRY.X());
     }
     else
     {
-      pitchError = math::clamp(pitchError,
-        currentAnglePRYVariable.x - lowerLimitsPRY.x,
-        currentAnglePRYVariable.x - upperLimitsPRY.x);
+      pitchError = ignition::math::clamp(pitchError,
+        currentAnglePRYVariable.X() - lowerLimitsPRY.X(),
+        currentAnglePRYVariable.X() - upperLimitsPRY.X());
     }
-    if (lowerLimitsPRY.y < upperLimitsPRY.y)
+    if (lowerLimitsPRY.Y() < upperLimitsPRY.Y())
     {
-      rollError = math::clamp(rollError,
-        currentAnglePRYVariable.y - upperLimitsPRY.y,
-        currentAnglePRYVariable.y - lowerLimitsPRY.y);
-    }
-    else
-    {
-      rollError = math::clamp(rollError,
-        currentAnglePRYVariable.y - lowerLimitsPRY.y,
-        currentAnglePRYVariable.y - upperLimitsPRY.y);
-    }
-    if (lowerLimitsPRY.z < upperLimitsPRY.z)
-    {
-      yawError = math::clamp(yawError,
-        currentAnglePRYVariable.z - upperLimitsPRY.z,
-        currentAnglePRYVariable.z - lowerLimitsPRY.z);
+      rollError = ignition::math::clamp(rollError,
+        currentAnglePRYVariable.Y() - upperLimitsPRY.Y(),
+        currentAnglePRYVariable.Y() - lowerLimitsPRY.Y());
     }
     else
     {
-      yawError = math::clamp(yawError,
-        currentAnglePRYVariable.z - lowerLimitsPRY.z,
-        currentAnglePRYVariable.z - upperLimitsPRY.z);
+      rollError = ignition::math::clamp(rollError,
+        currentAnglePRYVariable.Y() - lowerLimitsPRY.Y(),
+        currentAnglePRYVariable.Y() - upperLimitsPRY.Y());
+    }
+    if (lowerLimitsPRY.Z() < upperLimitsPRY.Z())
+    {
+      yawError = ignition::math::clamp(yawError,
+        currentAnglePRYVariable.Z() - upperLimitsPRY.Z(),
+        currentAnglePRYVariable.Z() - lowerLimitsPRY.Z());
+    }
+    else
+    {
+      yawError = ignition::math::clamp(yawError,
+        currentAnglePRYVariable.Z() - lowerLimitsPRY.Z(),
+        currentAnglePRYVariable.Z() - upperLimitsPRY.Z());
     }
 
     // apply forces to move gimbal
@@ -351,8 +351,8 @@ void GimbalControllerPlugin::OnUpdate()
     double yawForce = this->yawPid.Update(yawError, dt);
     this->yawJoint->SetForce(0, yDir*yawForce);
 
-    // math::Vector3 angles = this->imuSensor->Orientation().Euler();
-    // gzerr << "ang[" << angles.x << ", " << angles.y << ", " << angles.z
+    // ignition::ignition::math::Vector3d angles = this->imuSensor->Orientation().Euler();
+    // gzerr << "ang[" << angles.X() << ", " << angles.Y() << ", " << angles.Z()
     //       << "] cmd[ " << this->rollCommand
     //       << ", " << this->pitchCommand << ", " << this->yawCommand
     //       << "] err[ " << rollError
